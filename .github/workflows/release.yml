@@ -1,0 +1,94 @@
+name: Release
+
+# v* タグ push 時のみビルドし、GitHub Release に exe を添付する（リリース時以外はビルドしない）
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [x64, x86]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Fetch DxLib (VC package)
+        shell: pwsh
+        run: |
+          # xsrv.jp は間欠的に接続タイムアウトする為、各 URL を複数回試行し、失敗時はミラー（Wayback Machine）へ fallback する
+          $urls = @(
+            'https://dxlib.xsrv.jp/DxLib/DxLib_VC3_24f.zip',
+            'https://web.archive.org/web/20250910010252id_/https://dxlib.xsrv.jp/DxLib/DxLib_VC3_24f.zip'
+          )
+          $ok = $false
+          foreach ($url in $urls) {
+            for ($i = 1; $i -le 5; $i++) {
+              try {
+                Write-Host "Downloading DxLib from $url (attempt $i/5)"
+                Invoke-WebRequest -Uri $url -OutFile dxlib.zip -TimeoutSec 300
+                $ok = $true
+                break
+              } catch {
+                Write-Host "Attempt $i/5 failed: $($_.Exception.Message)"
+                if ($i -lt 5) { Start-Sleep -Seconds 20 }
+              }
+            }
+            if ($ok) { break }
+          }
+          if (-not $ok) { Write-Error 'DxLib download failed from all sources (xsrv.jp + mirror)'; exit 1 }
+          Expand-Archive -Path dxlib.zip -DestinationPath dxlib_pkg -Force
+          # Locate the folder that contains DxLib.h (the "VC-use" folder)
+          $dxh = Get-ChildItem -Path dxlib_pkg -Recurse -Filter DxLib.h | Select-Object -First 1
+          if (-not $dxh) { Write-Error 'DxLib.h not found'; exit 1 }
+          # Move it to an ASCII path (dxlib/) to avoid the Japanese folder name
+          $dest = Join-Path $env:GITHUB_WORKSPACE 'dxlib'
+          Move-Item -Path $dxh.Directory.FullName -Destination $dest
+          Write-Host "DxLibDir = $dest"
+          "DXLIB_DIR=$dest" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Build (Release / ${{ matrix.platform }})
+        shell: pwsh
+        run: |
+          msbuild TamakoroGame.sln `
+            /m `
+            /p:Configuration=Release `
+            /p:Platform=${{ matrix.platform }} `
+            /p:DxLibDir="$env:DXLIB_DIR"
+
+      # The single exe has the assets embedded; name it per platform
+      - name: Stage artifact
+        shell: pwsh
+        run: Copy-Item "${{ matrix.platform }}\Release\TamakoroGame.exe" "TamakoroGame-${{ matrix.platform }}.exe"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TamakoroGame-${{ matrix.platform }}
+          path: TamakoroGame-${{ matrix.platform }}.exe
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release and attach exe
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe

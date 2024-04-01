@@ -1,0 +1,5 @@
+#pragma code_page(65001)
+// 埋め込みアセット（暗号化ＤＸアーカイブ）
+MODELS_DXA RCDATA "models.dxa"
+GRAPHS_DXA RCDATA "graphs.dxa"
+SOUNDS_DXA RCDATA "sounds.dxa"
