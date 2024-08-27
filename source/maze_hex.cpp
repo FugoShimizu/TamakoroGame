@@ -59,7 +59,7 @@ void MazeHex::DigN(const int &NowLat, const int &NowLon) {
 		Tiger = false; // ’TõÏ‚É‚·‚é
 		break;
 	case 1: // Œß•ûŒü
-		if(NowLat + NowLon <= (Size - 1) * 2 - Size / 2 && Maze[NowLat][NowLon].second.Open) { // –¢’Tõ‚Ì
+		if(NowLat + NowLon <= 2 * (Size - 1) - Size / 2 && Maze[NowLat][NowLon].second.Open) { // –¢’Tõ‚Ì
 			Maze[NowLat][NowLon].first.Path6 = true;
 			Maze[NowLat][NowLon].second.Open = false;
 			Maze[NowLat][NowLon].second.Path6 = true;
@@ -123,6 +123,6 @@ void MazeHex::DigS(const int &NowLat, const int &NowLon) {
 
 // –À˜Hæ“¾ŠÖ”
 std::vector<std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>>> MazeHex::GetPath() const {
-	// I—¹
-	return Path; // –À˜H‚Ìƒf[ƒ^‚ğ•Ô‚·
+	// –À˜H‚Ìƒf[ƒ^‚Ì•Ô–ß
+	return Path;
 }

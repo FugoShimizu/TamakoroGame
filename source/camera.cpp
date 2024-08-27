@@ -22,7 +22,7 @@ void Camera::Reset() {
 	// カメラ位置の初期化
 	DirectionV = 24;
 	DirectionH = 0;
-	Distance = std::clamp(Setting::GetStageSize() * 5, 10, 160);
+	Distance = std::clamp(5 * Setting::GetStageSize(), 10, 160);
 	// 終了
 	return;
 }
@@ -44,7 +44,7 @@ void Camera::Move(const VECTOR &BallLocation, const float &CamAngLowLim, const b
 		SetCameraPositionAndTargetAndUpVec(VAdd(Position, BallLocation), BallLocation, Overhead);
 		break;
 	case 2: // ボール視点カメラ
-		SetCameraPositionAndAngle(BallLocation, (DirectionV - 24) * UnitMoveAng, DirectionH * UnitMoveAng, 0.0F);
+		SetCameraPositionAndAngle(BallLocation, UnitMoveAng * (DirectionV - 24), UnitMoveAng * DirectionH, 0.0F);
 		break;
 	}
 	// 終了
@@ -65,8 +65,8 @@ void Camera::Control(const float &CamAngLowLim, const bool &CursorOnMiniMap) {
 	}
 	// カメラ位置
 	if(Input::GetKeyPress(KEY_INPUT_R)) Reset(); // Rキーでリセット
-	const float AngleV = (std::max)(DirectionV * UnitMoveAng, CamAngLowLim); // カメラがステージの下に行かない様にする
-	const float AngleH = DirectionH * UnitMoveAng;
+	const float AngleV = (std::max)(UnitMoveAng * DirectionV, CamAngLowLim); // カメラがステージの下に行かない様にする
+	const float AngleH = UnitMoveAng * DirectionH;
 	PositionY = sinf(AngleV);
 	PositionR = cosf(AngleV);
 	PositionX = -sinf(AngleH);
@@ -81,14 +81,14 @@ void Camera::Control(const float &CamAngLowLim, const bool &CursorOnMiniMap) {
 
 // 方向角取得関数
 float Camera::GetDirection() const {
-	// 終了
-	return DirectionH * UnitMoveAng; // 方向角を返す
+	// 方向角の返戻
+	return UnitMoveAng * DirectionH;
 }
 
 // 背景描画関数
 void Camera::DrawBackground() const {
 	// 背景の描画
-	DrawModiGraph(0, 0, 1280, 0, 1280, 720, 0, 720, DerivationGraph(0, (std::min)(static_cast<int>(PositionY * 256.0F), 255), 128, (std::max)(static_cast<int>((1.0F - PositionY) * 128.0F), 1), BGGraphHandle), FALSE);
+	DrawModiGraph(0, 0, 1280, 0, 1280, 720, 0, 720, DerivationGraph(0, (std::min)(static_cast<int>(256.0F * PositionY), 255), 128, (std::max)(static_cast<int>(128.0F * (1.0F - PositionY)), 1), BGGraphHandle), FALSE);
 	// 終了
 	return;
 }

@@ -3,6 +3,8 @@
 
 // 通路部ブロック（四角）親クラス
 class BlockQPathBase : public BlockBase {
+public:
+	virtual void Collision(const int &direction, VECTOR &BallPos, VECTOR &BallVel) const = 0; // 衝突判定関数
 protected:
 	BlockQPathBase(); // コンストラクタ
 	void RotateBallPos(const int &Direction, VECTOR &BallPos, VECTOR &BallVel) const; // ボール位置回転変換関数
@@ -15,5 +17,5 @@ protected:
 	void RightBackCorner(VECTOR &BallPos, VECTOR &BallVel) const; // 右後方角衝突判定関数
 	void RightFrontCorner(VECTOR &BallPos, VECTOR &BallVel) const; // 右前方角衝突判定関数
 private:
-	static constexpr float UnitRotAngQ = DX_PI_F * 0.5F; // 単位回転角度
+	static constexpr float UnitRotAngQ = 0.5F * DX_PI_F; // 単位回転角度
 };

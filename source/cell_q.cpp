@@ -5,9 +5,9 @@ void CellQ::SetCell(const int &SourceModelHandle, const int &CellDir, const int 
 	// モデルのコピー
 	ModelHandle = MV1DuplicateModel(SourceModelHandle);
 	// セルの向きの設定
-	Direction = CellDir * DX_PI_F * 0.5F;
+	Direction = 0.5F * DX_PI_F * CellDir;
 	// セルの位置の設定
-	Location = VGet(static_cast<float>((StageSize + 1) * -2 + Longitude * 4), 0.0F, static_cast<float>((StageSize + 1) * 2 - Latitude * 4));
+	Location = VGet(static_cast<float>(-2 * (StageSize + 1) + 4 * Longitude), 0.0F, static_cast<float>(2 * (StageSize + 1) - 4 * Latitude));
 	//終了
 	return;
 }

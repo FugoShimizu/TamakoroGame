@@ -40,7 +40,7 @@ void BlockBase::CollisionSound(const float &ImpactVel) const {
 	// 衝突音の再生
 	if(ImpactVel > 0.01F) { // 閾値以上の速度で衝突した時
 		// 音量の設定
-		ChangeNextPlayVolumeSoundMem(static_cast<int>(ImpactVel * 1024.0F), CollisionSoundHandle);
+		ChangeNextPlayVolumeSoundMem(static_cast<int>(1024.0F * ImpactVel), CollisionSoundHandle);
 		// 音声の再生
 		PlaySoundMem(CollisionSoundHandle, DX_PLAYTYPE_BACK);
 		// デバッグ用

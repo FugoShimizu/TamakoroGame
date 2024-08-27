@@ -39,7 +39,7 @@ void StageHex::BuildStage() {
 	for(int i = Size, j = (Size + 1) / 2 + 1; j <= Size; --i, ++j) Stage[i][j].second.SetCellS(Border.GetModel(), 0, Size, i, j); // 午
 	// ステージの迷路部分のモデルの割当
 	for(int i = 1; i <= Size; ++i) for(int j = 1; j <= Size; ++j) {
-		if(i + j > Size / 2 + 1 && i + j <= (Size + 1) * 3 / 2) switch(Paths[i - 1][j - 1].first.first) {
+		if(i + j > Size / 2 + 1 && i + j <= 3 * (Size + 1) / 2) switch(Paths[i - 1][j - 1].first.first) {
 		case 0:
 			Stage[i][j].first.SetCellN(PathA.GetModel(), Paths[i - 1][j - 1].first.second, Size, i, j);
 			break;
@@ -53,7 +53,7 @@ void StageHex::BuildStage() {
 			Stage[i][j].first.SetCellN(-1, Paths[i - 1][j - 1].first.second, Size, i, j);
 			break;
 		}
-		if(i + j > Size / 2 && i + j < (Size + 1) * 3 / 2) switch(Paths[i - 1][j - 1].second.first) {
+		if(i + j > Size / 2 && i + j < 3 * (Size + 1) / 2) switch(Paths[i - 1][j - 1].second.first) {
 		case 0:
 			Stage[i][j].second.SetCellS(PathA.GetModel(), Paths[i - 1][j - 1].second.second, Size, i, j);
 			break;
@@ -81,12 +81,12 @@ void StageHex::BuildStage() {
 // ボール位置該当ブロック衝突判定関数
 void StageHex::PositionFix(VECTOR &BallPos, VECTOR &BallVel) {
 	// ボール位置のステージ内拘束
-	BallPos.x = std::clamp(BallPos.x, abs(BallPos.z) / CellT::Root3 - Size * CellT::CentroidX + 1.0F, abs(BallPos.z) / -CellT::Root3 + Size * CellT::CentroidX - 1.0F);
+	BallPos.x = std::clamp(BallPos.x, abs(BallPos.z) / CellT::Root3 - CellT::CentroidX * Size + 1.0F, abs(BallPos.z) / -CellT::Root3 + CellT::CentroidX * Size - 1.0F);
 	BallPos.z = std::clamp(BallPos.z, static_cast<float>((Size + 1) / -2 * 4 + 1), static_cast<float>((Size + 1) / 2 * 4 - 1));
 	// ボール位置の該当ブロックの判定
-	BallLat = static_cast<int>(fmaf(BallPos.x, CellT::Root3, BallPos.z - Size * 4)) / -8;
-	BallLon = static_cast<int>(fmaf(BallPos.x, CellT::Root3, Size * 4 - BallPos.z)) / 8;
-	const bool Pole = (static_cast<int>(BallPos.z + Size * 4) / 4 - BallLat - BallLon) % 2;
+	BallLat = static_cast<int>(fmaf(BallPos.x, CellT::Root3, BallPos.z - 4 * Size)) / -8;
+	BallLon = static_cast<int>(fmaf(BallPos.x, CellT::Root3, 4 * Size - BallPos.z)) / 8;
+	const bool Pole = (static_cast<int>(BallPos.z + 4 * Size) / 4 - BallLat - BallLon) % 2;
 	std::pair<int, int> Cie;
 	std::array<std::pair<int, int>, 3> AdjacentCell; // 隣接セル
 	// セル内ボール位置の算出
@@ -95,15 +95,15 @@ void StageHex::PositionFix(VECTOR &BallPos, VECTOR &BallVel) {
 	if(Pole) { // 北セル
 		Cie = Paths[BallLat][BallLon].first;
 		if(BallLat > 0) AdjacentCell[(3 - Cie.second) % 3] = Paths[BallLat - 1][BallLon].second; // ２時方向
-		if(BallLat + BallLon <= (Size - 1) * 2 - Size / 2) AdjacentCell[(4 - Cie.second) % 3] = Paths[BallLat][BallLon].second; // ６時方向
+		if(BallLat + BallLon <= 2 * (Size - 1) - Size / 2) AdjacentCell[(4 - Cie.second) % 3] = Paths[BallLat][BallLon].second; // ６時方向
 		if(BallLon > 0) AdjacentCell[(5 - Cie.second) % 3] = Paths[BallLat][BallLon - 1].second; // １０時方向
-		BallLocLocal = VGet(fmodf(BallPos.x + (Size + (Size - BallLat + BallLon - 1) % 2) * CellT::CentroidX, CellT::CentroidX * 2.0F) - CellT::CentroidX, 0.0F, fmodf(BallPos.z + Size * 4, 4.0F) - CellT::CentroidZ);
+		BallLocLocal = VGet(fmodf(BallPos.x + CellT::CentroidX * (Size + (Size - BallLat + BallLon - 1) % 2), 2.0F * CellT::CentroidX) - CellT::CentroidX, 0.0F, fmodf(BallPos.z + 4 * Size, 4.0F) - CellT::CentroidZ);
 	} else { // 南セル
 		Cie = Paths[BallLat][BallLon].second;
 		if(BallLat < Size - 1) AdjacentCell[(3 - Cie.second) % 3] = Paths[BallLat + 1][BallLon].first; // ８時方向
 		if(BallLat + BallLon >= Size / 2) AdjacentCell[(4 - Cie.second) % 3] = Paths[BallLat][BallLon].first; // １２時方向
 		if(BallLon < Size - 1) AdjacentCell[(5 - Cie.second) % 3] = Paths[BallLat][BallLon + 1].first; // ４時方向
-		BallLocLocal = VGet(CellT::CentroidX - fmodf(BallPos.x + (Size + (Size - BallLat + BallLon - 1) % 2) * CellT::CentroidX, CellT::CentroidX * 2.0F), 0.0F, CellT::CentroidZ * 2.0F - fmodf(BallPos.z + Size * 4, 4.0F));
+		BallLocLocal = VGet(CellT::CentroidX - fmodf(BallPos.x + CellT::CentroidX * (Size + (Size - BallLat + BallLon - 1) % 2), 2.0F * CellT::CentroidX), 0.0F, 2.0F * CellT::CentroidZ - fmodf(BallPos.z + 4 * Size, 4.0F));
 	}
 	// 隣接壁の判定
 	std::array<std::pair<bool, bool>, 3> AdjacentWall; // 中心から見て，first：左側の壁，second：右側の壁 // true：長い壁，false：短い壁
@@ -121,8 +121,8 @@ void StageHex::PositionFix(VECTOR &BallPos, VECTOR &BallVel) {
 		break;
 	}
 	// 修正されたセル内ボール位置の反映
-	if(Pole) BallPos = VAdd(VGet((BallLon - BallLat) * CellT::CentroidX, 0.0F, (Size - BallLat - BallLon - 1) * 4 + CellT::CentroidZ), BallLocLocal);
-	else BallPos = VAdd(VGet((BallLon - BallLat) * CellT::CentroidX, 0.0F, (Size - BallLat - BallLon - 1) * 4 - CellT::CentroidZ), VScale(BallLocLocal, -1.0F));
+	if(Pole) BallPos = VAdd(VGet(CellT::CentroidX * (BallLon - BallLat), 0.0F, 4 * (Size - BallLat - BallLon - 1) + CellT::CentroidZ), BallLocLocal);
+	else BallPos = VAdd(VGet(CellT::CentroidX * (BallLon - BallLat), 0.0F, 4 * (Size - BallLat - BallLon - 1) - CellT::CentroidZ), VScale(BallLocLocal, -1.0F));
 	// 終了
 	return;
 }

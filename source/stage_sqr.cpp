@@ -72,14 +72,14 @@ void StageSqr::BuildStage() {
 // ボール位置該当ブロック衝突判定関数
 void StageSqr::PositionFix(VECTOR &BallPos, VECTOR &BallVel) {
 	// ボール位置のステージ内拘束
-	BallPos.x = std::clamp(BallPos.x, static_cast<float>(Size * -2 + 1), static_cast<float>(Size * 2 - 1));
-	BallPos.z = std::clamp(BallPos.z, static_cast<float>(Size * -2 + 1), static_cast<float>(Size * 2 - 1));
+	BallPos.x = std::clamp(BallPos.x, static_cast<float>(-2 * Size + 1), static_cast<float>(2 * Size - 1));
+	BallPos.z = std::clamp(BallPos.z, static_cast<float>(-2 * Size + 1), static_cast<float>(2 * Size - 1));
 	// ボール位置の該当ブロックの判定
-	BallLat = static_cast<int>(Size * 0.5F - BallPos.z * 0.25F);
-	BallLon = static_cast<int>(Size * 0.5F + BallPos.x * 0.25F);
+	BallLat = static_cast<int>(0.5F * Size - 0.25F * BallPos.z);
+	BallLon = static_cast<int>(0.5F * Size + 0.25F * BallPos.x);
 	std::pair<int, int> Cie = Paths[BallLat][BallLon];
 	// セル内ボール位置の算出
-	VECTOR BallLocLocal = VGet(fmodf((BallPos.x + Size * 2), 4.0F) - 2.0F, 0.0F, fmodf((BallPos.z + Size * 2), 4.0F) - 2.0F);
+	VECTOR BallLocLocal = VGet(fmodf((BallPos.x + 2 * Size), 4.0F) - 2.0F, 0.0F, fmodf((BallPos.z + 2 * Size), 4.0F) - 2.0F);
 	// 該当ブロックに応じた衝突判定
 	switch(Cie.first) {
 	case 0:
@@ -99,7 +99,7 @@ void StageSqr::PositionFix(VECTOR &BallPos, VECTOR &BallVel) {
 		break;
 	}
 	// 修正されたセル内ボール位置の反映
-	BallPos = VAdd(VGet(static_cast<float>((Size - 1) * -2 + BallLon * 4), 0.0F, static_cast<float>((Size - 1) * 2 - BallLat * 4)), BallLocLocal);
+	BallPos = VAdd(VGet(static_cast<float>(2 * (1 - Size) + 4 * BallLon), 0.0F, static_cast<float>(2 * (Size - 1) - 4 * BallLat)), BallLocLocal);
 	// 終了
 	return;
 }

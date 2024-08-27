@@ -5,7 +5,7 @@ CellBase::CellBase() {
 	// ƒƒ“ƒo•Ï”‚Ì‰Šú‰»
 	ModelHandle = -1;
 	Direction = 0;
-	Location = VECTOR(0.0F, 0.0F, 0.0F);
+	Location = VGet(0.0F, 0.0F, 0.0F);
 	// I—¹
 	return;
 }

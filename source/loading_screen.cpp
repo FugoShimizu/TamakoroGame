@@ -10,7 +10,7 @@ LoadingScreen::LoadingScreen() {
 		TotalNodes = Setting::GetStageSize() * Setting::GetStageSize();
 		break;
 	case StageForm::HEX:
-		TotalNodes = Setting::GetStageSize() * Setting::GetStageSize() * 3 / 2 + Setting::GetStageSize() % 2 * Setting::GetStageSize() - 1;
+		TotalNodes = 3 * Setting::GetStageSize() * Setting::GetStageSize() / 2 + Setting::GetStageSize() % 2 * Setting::GetStageSize() - 1;
 		break;
 	default:
 		TotalNodes = 0;
@@ -34,8 +34,8 @@ void LoadingScreen::DrawScreen() {
 	// ÉQÅ[ÉWÇÃï`âÊ
 	DrawString(390, 332, "Now Loading...", GetColor(255, 255, 255));
 	DrawBox(390, 350, 890, 370, GetColor(128, 128, 128), TRUE);
-	DrawBox(390, 350, 390 + LoadedNodes * 500 / TotalNodes, 370, GetColor(255, 255, 255), TRUE);
-	DrawFormatString(900, 352, GetColor(255, 255, 255), "%3d%%", LoadedNodes * 100 / TotalNodes);
+	DrawBox(390, 350, 390 + 500 * LoadedNodes / TotalNodes, 370, GetColor(255, 255, 255), TRUE);
+	DrawFormatString(900, 352, GetColor(255, 255, 255), "%3d%%", 100 * LoadedNodes / TotalNodes);
 	// ó†âÊñ ÇÃì‡óeÇï\âÊñ Ç…îΩâf
 	ScreenFlip();
 	// èIóπ

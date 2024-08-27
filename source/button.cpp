@@ -93,7 +93,7 @@ bool Button::DrawTextBox(const int &x, const int &y, std::string &ValueStr, bool
 		// 選択中表示
 		DrawBox(x + 4, y + 2, x + 124, y + 22, GetColor(255, 128, 0), FALSE); // 橙色の枠を表示
 		// カーソル表示
-		if(Input::Cycle < 64) DrawLine(x - CursorPos * 9 + 112, y + 4, x - CursorPos * 9 + 112, y + 19, GetColor(0, 0, 0));
+		if(Input::Cycle < 64) DrawLine(x - 9 * CursorPos + 112, y + 4, x - 9 * CursorPos + 112, y + 19, GetColor(0, 0, 0));
 		// テキストボックスの操作
 		if(!Input::Cycle) { // キーの押下中に連続で動作される間隔を空ける
 			// カーソルの移動

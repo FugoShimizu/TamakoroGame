@@ -93,6 +93,6 @@ void MazeSqr::Dig(const int &NowLat, const int &NowLon) {
 
 // 迷路取得関数
 std::vector<std::vector<std::pair<int, int>>> MazeSqr::GetPath() const {
-	// 終了
-	return Path; // 迷路のデータを返す
+	// 迷路のデータの返戻
+	return Path;
 }

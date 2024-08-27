@@ -5,9 +5,9 @@ void CellT::SetCellN(const int &SourceModelHandle, const int &CellDir, const int
 	// モデルのコピー
 	ModelHandle = MV1DuplicateModel(SourceModelHandle);
 	// セルの向きの設定
-	Direction = CellDir * DX_TWO_PI_F / 3.0F;
+	Direction = DX_TWO_PI_F / 3.0F * CellDir;
 	// セルの位置の設定
-	Location = VGet((Longitude - Latitude) * CentroidX, 0.0F, (StageSize - Latitude - Longitude + 1) * 4 + CentroidZ);
+	Location = VGet(CentroidX * (Longitude - Latitude), 0.0F, 4 * (StageSize - Latitude - Longitude + 1) + CentroidZ);
 	//終了
 	return;
 }
@@ -17,9 +17,9 @@ void CellT::SetCellS(const int &SourceModelHandle, const int &CellDir, const int
 	// モデルのコピー
 	ModelHandle = MV1DuplicateModel(SourceModelHandle);
 	// セルの向きの設定
-	Direction = CellDir * DX_TWO_PI_F / 3.0F + DX_PI_F;
+	Direction = DX_TWO_PI_F / 3.0F * CellDir + DX_PI_F;
 	// セルの位置の設定
-	Location = VGet((Longitude - Latitude) * CentroidX, 0.0F, (StageSize - Latitude - Longitude + 1) * 4 - CentroidZ);
+	Location = VGet(CentroidX * (Longitude - Latitude), 0.0F, 4 * (StageSize - Latitude - Longitude + 1) - CentroidZ);
 	//終了
 	return;
 }

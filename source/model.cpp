@@ -15,12 +15,12 @@ Model::Model() {
 	RotationMat = MGetIdent(); // 単位行列
 	switch(Type) {
 	case StageForm::SQR: // 四角形ステージの時
-		StartLoc = VGet(static_cast<float>((1 - Size) * 2), 0.0F, static_cast<float>((1 - Size) * 2)); // スタート位置
-		GoalLoc = VGet(static_cast<float>((Size - 1) * 2), 0.0F, static_cast<float>((Size - 1) * 2)); // ゴール位置
+		StartLoc = VGet(static_cast<float>(2 * (1 - Size)), 0.0F, static_cast<float>(2 * (1 - Size))); // スタート位置
+		GoalLoc = VGet(static_cast<float>(2 * (Size - 1)), 0.0F, static_cast<float>(2 * (Size - 1))); // ゴール位置
 		break;
 	case StageForm::HEX: // 六角形ステージの時
-		StartLoc = VGet((1 - Size) * CellT::CentroidX, 0.0F, 0.0F); // スタート位置
-		GoalLoc = VGet((Size - 1) * CellT::CentroidX, 0.0F, 0.0F); // ゴール位置
+		StartLoc = VGet(CellT::CentroidX * (1 - Size), 0.0F, 0.0F); // スタート位置
+		GoalLoc = VGet(CellT::CentroidX * (Size - 1), 0.0F, 0.0F); // ゴール位置
 		break;
 	}
 	StartDist = 0;
@@ -60,7 +60,7 @@ float Model::Rotate(const float &CamAngH) {
 	const VECTOR Direct = VGet(sinf(CamAngH), 0.0F, cosf(CamAngH)); // 方向ベクトル
 	const VECTOR Normal = VTransformSR(VGet(0.0F, 1.0F, 0.0F), RotationMat); // 法線ベクトル
 	// 終了
-	return DX_PI_F * 0.5F - acosf(VDot(Direct, Normal) / VSize(Direct) / VSize(Normal)); // カメラ方向のステージ傾斜角を返す
+	return 0.5F * DX_PI_F - acosf(VDot(Direct, Normal) / VSize(Direct) / VSize(Normal)); // カメラ方向のステージ傾斜角を返す
 }
 
 // シミュレート関数
@@ -215,7 +215,7 @@ void Model::DrawMarker(const VECTOR &ScrCoord, const int &MarkerGraphHandle, con
 void Model::DrawMiniMap(const float &CamAngH) const {
 	// ミニマップの表示
 	SetDrawArea(1020, 460, 1260, 700); // ミニマップの描画領域
-	SetupCamera_Ortho(static_cast<float>(MiniMapScale * 8)); // 正射影カメラをセットアップ
+	SetupCamera_Ortho(static_cast<float>(8 * MiniMapScale)); // 正射影カメラをセットアップ
 	SetCameraScreenCenter(1140, 580); // ミニマップの中心位置
 	SetCameraPositionAndTargetAndUpVec(VTransformSR(VAdd(Bal.Pos, VGet(0.0F, 2.0F, 0.0F)), RotationMat), VTransformSR(Bal.Pos, RotationMat), VGet(sinf(CamAngH), 0.0F, cosf(CamAngH))); // カメラの位置をボールの上に設定
 	DrawBox(1020, 460, 1260, 700, GetColor(0, 0, 0), TRUE); // ミニマップの背景
@@ -229,7 +229,7 @@ void Model::DrawMiniMap(const float &CamAngH) const {
 // 軌跡画面描画関数
 void Model::DrawRoute(int EndNum) const {
 	// マップの表示
-	SetupCamera_Ortho(Size * 6.0F); // 正射影カメラをセットアップ
+	SetupCamera_Ortho(6.0F * Size); // 正射影カメラをセットアップ
 	SetCameraScreenCenter(640, 360);
 	SetCameraPositionAndTargetAndUpVec(VTransformSR(VGet(0.0F, 2.0F, 0.0F), RotationMat), VTransformSR(VGet(0.0F, 0.0F, 0.0F), RotationMat), VGet(0.0F, 0.0F, 1.0F)); // カメラの位置を中央に設定
 	DrawModel(); // マップを描画
@@ -245,11 +245,11 @@ void Model::DrawRoute(int EndNum) const {
 	while(EndNum && !BallPosHist_tmp.empty()) {
 		const VECTOR NextPos = VScale(BallPosHist_tmp.front(), 120.0F / Size);
 		BallPosHist_tmp.pop();
-		DrawLineAA(LastPos.x + 640.0F, -LastPos.z + 360.0F, NextPos.x + 640.0F, -NextPos.z + 360.0F, GetColor(255, 0, 0)); // 軌跡の線
+		DrawLineAA(640.0F + LastPos.x, 360.0F - LastPos.z, 640.0F + NextPos.x, 360.0F - NextPos.z, GetColor(255, 0, 0)); // 軌跡の線
 		LastPos = NextPos;
 		--EndNum;
 	}
-	DrawCircle(static_cast<int>(LastPos.x) + 640, -static_cast<int>(LastPos.z) + 360, 120 / Size, GetColor(255, 0, 0), TRUE); // 先頭部
+	DrawCircle(640 + static_cast<int>(LastPos.x), 360 - static_cast<int>(LastPos.z), 120 / Size, GetColor(255, 0, 0), TRUE); // 先頭部
 	// 終了
 	return;
 }

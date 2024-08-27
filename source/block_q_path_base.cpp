@@ -12,7 +12,7 @@ BlockQPathBase::BlockQPathBase() {
 // ボール位置回転変換関数
 void BlockQPathBase::RotateBallPos(const int &Direction, VECTOR &BallPos, VECTOR &BallVel) const {
 	// 回転変換
-	const MATRIX RotationMat = MGetRotY(Direction * UnitRotAngQ); // 回転行列
+	const MATRIX RotationMat = MGetRotY(UnitRotAngQ * Direction); // 回転行列
 	BallPos = VTransformSR(BallPos, RotationMat);
 	BallVel = VTransformSR(BallVel, RotationMat);
 	// 終了
@@ -38,7 +38,7 @@ void BlockQPathBase::RightWall(VECTOR &BallPos, VECTOR &BallVel) const {
 // 後方壁衝突判定関数
 void BlockQPathBase::BackWall(VECTOR &BallPos, VECTOR &BallVel) const {
 	// 壁との距離と衝突角度の算出
-	CollisionDetection(1.5F + BallPos.z, DX_PI_F * 0.5F, BallPos, BallVel);
+	CollisionDetection(1.5F + BallPos.z, 0.5F * DX_PI_F, BallPos, BallVel);
 	// 終了
 	return;
 }
@@ -46,7 +46,7 @@ void BlockQPathBase::BackWall(VECTOR &BallPos, VECTOR &BallVel) const {
 // 前方壁衝突判定関数
 void BlockQPathBase::FrontWall(VECTOR &BallPos, VECTOR &BallVel) const {
 	// 壁との距離と衝突角度の算出
-	CollisionDetection(1.5F - BallPos.z, DX_PI_F * 1.5F, BallPos, BallVel);
+	CollisionDetection(1.5F - BallPos.z, 1.5F * DX_PI_F, BallPos, BallVel);
 	// 終了
 	return;
 }

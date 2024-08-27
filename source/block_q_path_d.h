@@ -5,5 +5,5 @@
 class BlockQPathD : public BlockQPathBase {
 public:
 	BlockQPathD(); // コンストラクタ
-	void Collision(const int &Direction, VECTOR &BallPos, VECTOR &BallVel) const; // 衝突判定関数
+	void Collision(const int &Direction, VECTOR &BallPos, VECTOR &BallVel) const override; // 衝突判定関数
 };
